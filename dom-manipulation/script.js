@@ -740,3 +740,135 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('beforeunload', saveQuotes);
 
 });
+// ===== Dynamic Quote Generator with Server Sync =====
+
+// Initialize quotes array
+let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+// DOM Elements
+const quoteDisplay = document.getElementById('quoteDisplay');
+const addQuoteForm = document.getElementById('addQuoteForm');
+const quoteTextInput = document.getElementById('quoteText');
+const quoteAuthorInput = document.getElementById('quoteAuthor');
+const quoteCategoryInput = document.getElementById('quoteCategory');
+const categoryFilter = document.getElementById('categoryFilter');
+
+// ===== Utility Functions =====
+
+// Save quotes to local storage
+function saveQuotes() {
+  localStorage.setItem('quotes', JSON.stringify(quotes));
+}
+
+// Display a random quote
+function displayRandomQuote() {
+  if (quotes.length === 0) {
+    quoteDisplay.textContent = 'No quotes available!';
+    return;
+  }
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  const quote = quotes[randomIndex];
+  quoteDisplay.textContent = `"${quote.text}" — ${quote.author}`;
+}
+
+// Populate category dropdown
+function populateCategories() {
+  const categories = [...new Set(quotes.map(q => q.category))];
+  categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
+  });
+}
+
+// Filter quotes by category
+function filterQuotes() {
+  const selectedCategory = categoryFilter.value;
+  localStorage.setItem('selectedCategory', selectedCategory);
+
+  const filteredQuotes =
+    selectedCategory === 'all'
+      ? quotes
+      : quotes.filter(q => q.category === selectedCategory);
+
+  if (filteredQuotes.length === 0) {
+    quoteDisplay.textContent = 'No quotes found for this category.';
+  } else {
+    const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+    const quote = filteredQuotes[randomIndex];
+    quoteDisplay.textContent = `"${quote.text}" — ${quote.author}`;
+  }
+}
+
+// Add new quote
+addQuoteForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const newQuote = {
+    text: quoteTextInput.value,
+    author: quoteAuthorInput.value,
+    category: quoteCategoryInput.value
+  };
+  quotes.push(newQuote);
+  saveQuotes();
+  populateCategories();
+  displayRandomQuote();
+  addQuoteForm.reset();
+});
+
+// ====== Server Sync Simulation ======
+
+// Simulate fetching quotes from server
+async function fetchQuotesFromServer() {
+  console.log('Fetching quotes from server...');
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const data = await response.json();
+
+    // Simulate converting server data into quote format
+    const serverQuotes = data.slice(0, 5).map(item => ({
+      text: item.title,
+      author: `Server Author ${item.id}`,
+      category: 'Server Data'
+    }));
+
+    resolveConflicts(serverQuotes);
+  } catch (error) {
+    console.error('Error fetching server data:', error);
+  }
+}
+
+// Conflict resolution strategy
+function resolveConflicts(serverQuotes) {
+  // If there’s a conflict (same text), prefer server version
+  const updatedQuotes = [...quotes];
+  serverQuotes.forEach(serverQuote => {
+    const index = updatedQuotes.findIndex(q => q.text === serverQuote.text);
+    if (index === -1) {
+      updatedQuotes.push(serverQuote);
+    } else {
+      updatedQuotes[index] = serverQuote; // Server wins
+    }
+  });
+
+  quotes = updatedQuotes;
+  saveQuotes();
+  populateCategories();
+  displayRandomQuote();
+
+  alert('Quotes synced with server! (Conflicts resolved automatically)');
+}
+
+// Periodically sync every 30 seconds
+setInterval(fetchQuotesFromServer, 30000);
+
+// ===== Initialize App =====
+window.onload = function () {
+  populateCategories();
+  const savedFilter = localStorage.getItem('selectedCategory');
+  if (savedFilter) {
+    categoryFilter.value = savedFilter;
+  }
+  displayRandomQuote();
+};
