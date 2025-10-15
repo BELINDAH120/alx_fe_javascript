@@ -103,3 +103,70 @@
   <script src="script.js"></script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dynamic Quote Generator — Sync Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f6f7fb; padding:24px; text-align:center; }
+    #quoteDisplay{ background:#fff; padding:18px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.08); min-height:60px; }
+    .controls { margin-top:12px; }
+    #syncStatus{ margin-top:12px; font-size:14px; color:#555; }
+    #conflictPanel{ margin-top:16px; display:none; background:#fff; padding:12px; border-radius:6px; text-align:left; max-width:720px; margin-left:auto; margin-right:auto; box-shadow:0 2px 6px rgba(0,0,0,.06); }
+    .conflict-item{ border-bottom:1px solid #eee; padding:8px 0; }
+    .conflict-buttons{ margin-top:6px; }
+    button { padding:8px 12px; margin:6px; border-radius:6px; border:none; cursor:pointer; background:#007bff; color:#fff; }
+    button.secondary{ background:#6c757d; }
+    button.danger{ background:#dc3545; }
+    .small{ padding:6px 10px; font-size:14px; }
+    label{ font-weight:bold; }
+  </style>
+</head>
+<body>
+  <h1>Dynamic Quote Generator — Sync Demo</h1>
+
+  <div>
+    <label for="categoryFilter">Filter:</label>
+    <select id="categoryFilter"><option value="all">All</option></select>
+  </div>
+
+  <div id="quoteDisplay">Click "Show New Quote" to begin!</div>
+  <div id="quoteCategory"></div>
+
+  <div class="controls">
+    <button id="newQuote" class="small">Show New Quote</button>
+    <button id="syncNow" class="small secondary">Sync Now</button>
+    <button id="showConflicts" class="small">Show Resolved Conflicts</button>
+  </div>
+
+  <div id="syncStatus">Last sync: N/A</div>
+
+  <!-- Conflict panel -->
+  <div id="conflictPanel">
+    <h3>Resolved Conflicts</h3>
+    <div id="conflictList"></div>
+    <div style="text-align:right; margin-top:8px;">
+      <button id="closeConflicts" class="small secondary">Close</button>
+    </div>
+  </div>
+
+  <!-- Add quote UI -->
+  <h2>Add Quote</h2>
+  <div>
+    <input id="newQuoteText" placeholder="Quote text" />
+    <input id="newQuoteCategory" placeholder="Category" />
+    <button id="addQuoteBtn">Add Quote</button>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button id="exportBtn" class="small">Export JSON</button>
+    <input id="importFile" type="file" accept=".json" />
+    <button id="clearStorage" class="small danger">Reset Local</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
