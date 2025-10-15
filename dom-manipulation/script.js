@@ -10,6 +10,7 @@ const quoteTextInput = document.getElementById('quoteText');
 const quoteAuthorInput = document.getElementById('quoteAuthor');
 const quoteCategoryInput = document.getElementById('quoteCategory');
 const categoryFilter = document.getElementById('categoryFilter');
+const notification = document.getElementById('notification');
 
 // ===== Utility Functions =====
 
@@ -60,7 +61,7 @@ function filterQuotes() {
   }
 }
 
-// Add new quote (and sync to server)
+// Add new quote
 addQuoteForm.addEventListener('submit', e => {
   e.preventDefault();
   const newQuote = {
@@ -73,22 +74,30 @@ addQuoteForm.addEventListener('submit', e => {
   populateCategories();
   displayRandomQuote();
   addQuoteForm.reset();
-
-  // Sync new quote to the server
-  syncQuoteToServer(newQuote);
+  showNotification('Quote added locally!');
 });
 
 // ====== Server Sync Simulation ======
 
-// Fetch quotes from a fake server (GET)
-async function fetchQuotesFromServer() {
-  console.log('Fetching quotes from server...');
-  try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-    const data = await response.json();
+// Simulate sending and fetching quotes from a server
+async function syncQuotes() {
+  console.log('Syncing quotes with server...');
+  showNotification('Syncing with server...');
 
-    // Simulate converting server data into quote format
-    const serverQuotes = data.slice(0, 5).map(item => ({
+  try {
+    // Simulate POSTing local quotes to the server
+    await fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(quotes)
+    });
+
+    // Then simulate fetching the latest quotes from the server
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const serverData = await response.json();
+
+    // Simulate server-side quote format
+    const serverQuotes = serverData.slice(0, 5).map(item => ({
       text: item.title,
       author: `Server Author ${item.id}`,
       category: 'Server Data'
@@ -96,12 +105,61 @@ async function fetchQuotesFromServer() {
 
     resolveConflicts(serverQuotes);
   } catch (error) {
-    console.error('Error fetching server data:', error);
+    console.error('Error syncing with server:', error);
+    showNotification('Error syncing with server!', true);
   }
 }
 
-// Send new quote to the server (POST)
-async function syncQuoteToServer(quote) {
+// Conflict resolution strategy
+function resolveConflicts(serverQuotes) {
+  const updatedQuotes = [...quotes];
+  let conflicts = 0;
+
+  serverQuotes.forEach(serverQuote => {
+    const index = updatedQuotes.findIndex(q => q.text === serverQuote.text);
+    if (index === -1) {
+      updatedQuotes.push(serverQuote);
+    } else {
+      updatedQuotes[index] = serverQuote; // Server data wins
+      conflicts++;
+    }
+  });
+
+  quotes = updatedQuotes;
+  saveQuotes();
+  populateCategories();
+  displayRandomQuote();
+
+  if (conflicts > 0) {
+    showNotification(`Conflicts resolved: ${conflicts} items updated.`);
+  } else {
+    showNotification('Quotes synced successfully!');
+  }
+}
+
+// Show user notifications (conflict, sync, update)
+function showNotification(message, isError = false) {
+  if (!notification) return;
+  notification.textContent = message;
+  notification.style.color = isError ? 'red' : 'green';
+  notification.style.display = 'block';
+  setTimeout(() => {
+    notification.style.display = 'none';
+  }, 3000);
+}
+
+// Periodically sync every 30 seconds
+setInterval(syncQuotes, 30000);
+
+// ===== Initialize App =====
+window.onload = function () {
+  populateCategories();
+  const savedFilter = localStorage.getItem('selectedCategory');
+  if (savedFilter) {
+    categoryFilter.value = savedFilter;
+  }
+  displayRandomQuote();
+};
   console.log('Syncing quote to server...', quote);
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
