@@ -19,14 +19,17 @@ document.addEventListener('DOMContentLoaded', function() {
   // Function to display a random quote
   function showRandomQuote() {
     if (quotes.length === 0) {
-      quoteDisplay.textContent = "No quotes available. Add one!";
-      quoteCategory.textContent = "";
+      quoteDisplay.innerHTML = "No quotes available. Add one!";
+      quoteCategory.innerHTML = "";
       return;
     }
+
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const randomQuote = quotes[randomIndex];
-    quoteDisplay.textContent = `"${randomQuote.text}"`;
-    quoteCategory.textContent = `— Category: ${randomQuote.category}`;
+
+    // Use innerHTML to display formatted text
+    quoteDisplay.innerHTML = `"${randomQuote.text}"`;
+    quoteCategory.innerHTML = `<em>— Category: ${randomQuote.category}</em>`;
   }
 
   // Function to add a new quote
@@ -40,24 +43,24 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Add the new quote object to the array
+    // Add new quote object to array
     const newQuote = { text, category };
     quotes.push(newQuote);
 
-    // Clear the input fields
+    // Clear input fields
     newQuoteText.value = "";
     newQuoteCategory.value = "";
 
-    // Display confirmation
-    quoteDisplay.textContent = `"${newQuote.text}" added!`;
-    quoteCategory.textContent = `Category: ${newQuote.category}`;
+    // Display confirmation message
+    quoteDisplay.innerHTML = `✅ New quote added: "${newQuote.text}"`;
+    quoteCategory.innerHTML = `<em>Category: ${newQuote.category}</em>`;
   }
 
   // Attach event listeners
   newQuoteBtn.addEventListener('click', showRandomQuote);
   addQuoteBtn.addEventListener('click', addQuote);
 
-  // Show the first quote automatically on load
+  // Show one random quote when page loads
   showRandomQuote();
 
 });
