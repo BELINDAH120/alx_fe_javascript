@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dynamic Quote Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Quote Generator with Category Filter</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f2f2f2;
+      background: #f9f9f9;
       text-align: center;
       padding: 30px;
     }
@@ -29,7 +29,7 @@
     .controls, .import-export, .add-quote {
       margin-top: 12px;
     }
-    input[type="text"] {
+    input[type="text"], select {
       padding: 8px;
       margin: 6px 4px;
       border-radius: 4px;
@@ -53,10 +53,7 @@
       background: #dc3545;
     }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .small {
-      padding: 6px 10px;
-      font-size: 14px;
-    }
+    .small { padding: 6px 10px; font-size: 14px; }
     #importFile {
       display: inline-block;
       margin-left: 8px;
@@ -65,8 +62,18 @@
   </style>
 </head>
 <body>
-  <h1>✨ Dynamic Quote Generator ✨</h1>
+  <h1>🌟 Dynamic Quote Generator 🌟</h1>
 
+  <!-- Category Filter -->
+  <div>
+    <label for="categoryFilter"><strong>Filter by Category:</strong></label>
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
+      <!-- Categories will be dynamically populated -->
+    </select>
+  </div>
+
+  <!-- Quote Display -->
   <div id="quoteDisplay">Click "Show New Quote" to begin!</div>
   <div id="quoteCategory"></div>
 
@@ -88,7 +95,10 @@
     <button id="clearStorage" class="small danger">Clear Stored Quotes</button>
   </div>
 
-  <div class="note">Imported JSON must be an array of objects like: [{ "text": "...", "category": "..." }, ...]</div>
+  <div class="note">
+    Imported JSON must be an array of objects like:
+    [{ "text": "...", "category": "..." }, ...]
+  </div>
 
   <script src="script.js"></script>
 </body>
